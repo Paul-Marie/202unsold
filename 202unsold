@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+
+import  sys
+import  math
+
+def     man_help():
+    print("USAGE")
+    print("\t./202unsold a b")
+    print("DESCRIPTION")
+    print("\ta\tconstant computed from the past results")
+    print("\tb\tconstant computed from the past results")
+
+def     get_number(char):
+    try:
+        nbr = int(char)
+        if nbr <= 50:
+            sys.stdout.write("Too... Small...\n")
+            exit(84)
+    except:
+        sys.stdout.write("Invalid number given in argument\n")
+        exit(84)
+    return nbr
+
+def     get_result(x, y, a, b):
+    result = ((a - x) * (b - y)) / ((5 * a - 150) * (5 * b - 150))
+    return result
+
+def     get_tab(a, b):
+    tab = [[float(get_result((x + 1) * 10, (y + 1) * 10, a, b))
+            for x in range(5)] for y in range(5)]
+    return tab
+
+def     get_tab_sum(tab, i, j, mode):
+    result = 0
+    d = 0
+    while d < 5:
+        result += tab[i][j]
+        if mode == 1:
+            j += 1
+        else:
+            i += 1
+        d += 1
+    return result
+
+def     print_joint_law(tab, a, b):
+    print("\tX=10\tX=20\tX=30\tX=40\tX=50\tY law")
+    for i in range(len(tab)):
+        print("Y=" + str((i + 1) * 10), end='\t')
+        for j in range(len(tab[i])):
+                print("%.3f" % tab[i][j], end='\t')
+        Y_exp.append(get_tab_sum(tab, i, 0, 1))
+        print("%.3f" % get_tab_sum(tab, i, 0, 1))
+    print("X law\t", end='')
+    for s in range(len(tab) - 1):
+        X_exp.append(get_tab_sum(tab, 0, s, 0))
+        print("%.3f" % get_tab_sum(tab, 0, s, 0), end='\t')
+    X_exp.append(get_tab_sum(tab, 0, s + 1, 0))
+    print("%.3f" % get_tab_sum(tab, 0, s + 1, 0) + "\t1")
+
+def     print_law(tab, a, b):
+    z = 2
+    print("z\t20\t30\t40\t50\t60\t70\t80\t90\t100\ttotal\np(Z=z)", end='')
+    for z in range(2, 11):
+        result = 0.0
+        summ = 0.0
+        for y in range(1, 6):
+            for x in range(1, 6):
+                result = get_result(x * 10, y * 10, a, b)
+                if (x + y == z and y < 6):
+                    summ += result
+        print("\t%0.3f" %(summ), end='')
+    print("\t1")
+
+def     print_variance(tab, a, b):
+    expX = 0.0
+    expY = 0.0
+    totalX = 0.0
+    totalY = 0.0
+    for i in range(0, 5):
+        totalX += X_exp[i] * ((i + 1) * 10)
+        totalY += Y_exp[i] * ((i + 1) * 10)
+    for i in range(0, 5):
+        expX += ((i + 1) * 10 - totalX) * ((i + 1) * 10 - totalX) * X_exp[i]
+        expY += ((i + 1) * 10 - totalY) * ((i + 1) * 10 - totalY) * Y_exp[i]
+    print("expected value of X:\t" + "%0.1f" %(totalX))
+    print("variance of X:\t\t" + "%0.1f" %(expX))
+    print("expected value of Y:\t" + "%0.1f" %(totalY))
+    print("variance of Y:\t\t" + "%0.1f" %(expY))
+    print("expected value of Z:\t" + "%0.1f" %(totalX + totalY))
+    print("variance of Z:\t\t" + "%0.1f" %(expX + expY))
+
+def     print_result(tab, a, b):
+    print("------------------------------------------------------")
+    print_joint_law(tab, a, b)
+    print("------------------------------------------------------")
+    print_law(tab, a, b)
+    print("------------------------------------------------------")
+    print_variance(tab, a, b)
+    print("------------------------------------------------------")
+
+#try:
+if len(sys.argv) == 2:
+    if sys.argv[1] == "-h":
+        man_help()
+        exit(0)
+    else:
+        sys.stdout.write("Invalid number of argument\n")
+        exit(84)
+elif len(sys.argv) == 3:
+    a = get_number(sys.argv[1])
+    b = get_number(sys.argv[2])
+    tab = get_tab(a, b)
+    X_exp = []
+    Y_exp = []
+    print_result(tab, a, b)
+else:
+    sys.stdout.write("Invalid number of argument\n")
+    exit(84)
+#except:
+#    exit(84)
